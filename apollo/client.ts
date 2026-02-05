@@ -8,6 +8,7 @@ import { getJwtToken } from '../libs/auth';
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
 let apolloClient: ApolloClient<NormalizedCacheObject>;
 
+// Bu funksiya har bir GraphQL so'roviga Authorization headerini qo'shib beradi.
 function getHeaders() {
 	const headers = {} as HeadersInit;
 	const token = getJwtToken();
@@ -16,6 +17,7 @@ function getHeaders() {
 	return headers;
 }
 
+// Bu qism token refresh mexanizmini ulash uchun (hozircha stub, doim valid deb oladi).
 const tokenRefreshLink = new TokenRefreshLink({
 	accessTokenField: 'accessToken',
 	isTokenValidOrUndefined: () => {
@@ -27,6 +29,7 @@ const tokenRefreshLink = new TokenRefreshLink({
 	},
 });
 
+// Bu funksiya brauzerda ishlaydigan link zanjirini yig'adi: auth, upload, ws, error va split.
 function createIsomorphicLink() {
 	if (typeof window !== 'undefined') {
 		const authLink = new ApolloLink((operation, forward) => {
@@ -57,6 +60,7 @@ function createIsomorphicLink() {
 			},
 		});
 
+		// Bu joy GraphQL va Network xatolarini log qiladi (401 uchun placeholder bor).
 		const errorLink = onError(({ graphQLErrors, networkError, response }) => {
 			if (graphQLErrors) {
 				graphQLErrors.map(({ message, locations, path, extensions }) =>
@@ -69,6 +73,7 @@ function createIsomorphicLink() {
 			}
 		});
 
+		// Bu qism subscriptionlarni WS orqali, qolganini HTTP (auth+upload) orqali yuboradi.
 		const splitLink = split(
 			({ query }) => {
 				const definition = getMainDefinition(query);
@@ -82,15 +87,18 @@ function createIsomorphicLink() {
 	}
 }
 
+// Bu funksiya ApolloClient instansiyasini yaratadi (cache va link zanjiri bilan).
 function createApolloClient() {
 	return new ApolloClient({
 		ssrMode: typeof window === 'undefined',
 		link: createIsomorphicLink(),
 		cache: new InMemoryCache(),
+		connectToDevTools:true,
 		resolvers: {},
 	});
 }
 
+// Bu funksiya SSR/CSR uchun Apollo clientni ishga tushiradi va cache'ni restore qiladi.
 export function initializeApollo(initialState = null) {
 	const _apolloClient = apolloClient ?? createApolloClient();
 	if (initialState) _apolloClient.cache.restore(initialState);
@@ -100,6 +108,8 @@ export function initializeApollo(initialState = null) {
 	return _apolloClient;
 }
 
+// useApollo — React komponentga barqaror Apollo Client beradi.
+// useMemo — qayta hisoblashni faqat dependency o‘zgarganda bajaradi.
 export function useApollo(initialState: any) {
 	return useMemo(() => initializeApollo(initialState), [initialState]);
 }

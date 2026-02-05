@@ -74,12 +74,13 @@ const TrendPropertyCard = (props: TrendPropertyCardProps) => {
 			</Stack>
 		);
 	} else {
+		
 		return (
 			<Stack className="trend-card-box" key={property._id}>
 				<Box
 					component={'div'}
 					className={'card-img'}
-					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages[0]})` }}
+					style={{ backgroundImage: `url(${REACT_APP_API_URL}/${property?.propertyImages[1]})` }}
 				>
 					<div>${property.propertyPrice}</div>
 				</Box>
