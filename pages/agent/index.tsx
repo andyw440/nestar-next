@@ -54,6 +54,7 @@ const AgentList: NextPage = ({ initialInput, ...props }: any) => {
 			setTotal(data?.getAgents?.metaCounter[0]?.total);
 		},
 	});
+	console.log('getAgentsData:', getAgentsData);
 
 	/** LIFECYCLES **/
 	useEffect(() => {
@@ -215,7 +216,7 @@ AgentList.defaultProps = {
 	initialInput: {
 		page: 1,
 		limit: 10,
-		sort: 'createdAt',
+		sort:"createdAt",
 		direction: 'DESC',
 		search: {},
 	},
