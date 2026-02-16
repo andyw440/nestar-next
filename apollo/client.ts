@@ -30,6 +30,37 @@ const tokenRefreshLink = new TokenRefreshLink({
 	},
 });
 
+
+// Custom WebSocket client
+class LoggingWebSocket {
+	private socket: WebSocket;
+
+	constructor(url: string) {
+		this.socket = new WebSocket(url);
+
+		this.socket.onopen = () => {
+			console.log('WebSocket connection!');
+		};
+
+		this.socket.onmessage = (msg) => {
+			console.log('WebSocket message:', msg.data);
+		};
+
+		this.socket.onerror = (error) => {
+			console.log('WebSocket, error:', error);
+		};
+	}
+
+	send(data: string | ArrayBuffer | SharedArrayBuffer | Blob | ArrayBufferView) {
+		this.socket.send(data);
+	}
+
+	close() {
+		this.socket.close();
+	}
+}
+
+
 // Bu funksiya brauzerda ishlaydigan link zanjirini yig'adi: auth, upload, ws, error va split.
 function createIsomorphicLink() {
 	if (typeof window !== 'undefined') {
@@ -59,6 +90,7 @@ function createIsomorphicLink() {
 					return { headers: getHeaders() };
 				},
 			},
+			webSocketImpl:LoggingWebSocket
 		});
 
 		// Bu joy GraphQL va Network xatolarini log qiladi (401 uchun placeholder bor).
